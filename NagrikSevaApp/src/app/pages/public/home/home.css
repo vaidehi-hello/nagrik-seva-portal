@@ -1,0 +1,73 @@
+
+/* home.component.css
+   Global styles.css  →  carousel, img-card, step-circle,
+                        sec-sup, orange-bar, cta-section already covered.
+   Bootstrap utilities →  layout, spacing, flex, grid, text, colors.
+   Only home-specific overrides remain below.
+*/
+
+/* Slide content positioning — can't be done with utilities alone */
+.slide-content {
+  position: absolute;
+  top: 50%;
+  left: 7%;
+  transform: translateY(-50%);
+  color: white;
+  max-width: 580px;
+  z-index: 2;
+}
+@media (max-width: 768px) {
+  .slide-content { left: 5%; right: 5%; max-width: 100%; }
+}
+
+/* Stats strip anchored to carousel bottom */
+.stats-strip {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(15,32,64,0.92);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+/* Service card hover — not in global styles */
+.service-card {
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12) !important;
+}
+
+.service-icon {
+  width: 74px; height: 74px;
+  background: #edf3ff;
+  color: #1a3a6b;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+.service-card:hover .service-icon {
+  background: #1a3a6b;
+  color: white;
+}
+
+/* Announcement card left border accent */
+.ann-card {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-left: 4px solid #FF6B00;
+  transition: background 0.2s;
+}
+.ann-card:hover { background: rgba(255,255,255,0.13); }
+
+/* Policy learn-more fade on hover */
+.learn-more {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #FF6B00;
+  margin-top: 6px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.img-card-bg:hover .learn-more { opacity: 1; }

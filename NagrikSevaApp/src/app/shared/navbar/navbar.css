@@ -1,0 +1,11 @@
+/* All styles in styles.css */
+
+.nav-link.active { color: #FF6B00 !important; }
+
+/* ✅ Navbar always on top of everything */
+/*header {
+  position: sticky;
+  top: 0;
+  z-index: 9998 !important;
+  width: 100%;
+}*/

@@ -1,0 +1,232 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard">
+  <aside class="sidebar">
+    <div class="user-card">
+      <div class="avatar">{{ userName[0] }}</div>
+      <h3>{{ userName }}</h3>
+      <span class="role-badge">Admin</span>
+    </div>
+
+    <nav class="side-nav">
+      <button [class.active]="activeTab === 'dashboard'"
+              (click)="activeTab = 'dashboard'">
+        📊 Dashboard
+      </button>
+      <button [class.active]="activeTab === 'users'"
+              (click)="activeTab = 'users'">
+        👥 Manage Users
+      </button>
+      <button [class.active]="activeTab === 'applications'"
+              (click)="activeTab = 'applications'">
+        📋 All Applications
+      </button>
+      <button [class.active]="activeTab === 'announce'"
+              (click)="activeTab = 'announce'">
+        📢 Announcements
+      </button>
+    </nav>
+
+    <button class="logout-btn" (click)="logout()">
+      🚪 Logout
+    </button>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- Dashboard Tab -->
+    <div *ngIf="activeTab === 'dashboard'">
+      <div class="page-header">
+        <h1>Admin Dashboard</h1>
+        <p>Complete system overview</p>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card blue">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.TotalUsers || 0 }}</span>
+            <span class="stat-label">Total Users</span>
+          </div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">📋</div>
+          <div class="stat-info">
+            <span class="stat-num">
+              {{ stats.TotalApplications || 0 }}
+            </span>
+            <span class="stat-label">Applications</span>
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.Approved || 0 }}</span>
+            <span class="stat-label">Approved</span>
+          </div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.Pending || 0 }}</span>
+            <span class="stat-label">Pending</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <h3>Application Status</h3>
+          <canvas baseChart
+                  [data]="doughnutChartData"
+                  [options]="doughnutOptions"
+                  type="doughnut">
+          </canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Users by Role</h3>
+          <canvas baseChart
+                  [data]="barChartData"
+                  [options]="barChartOptions"
+                  type="bar">
+          </canvas>
+        </div>
+      </div>
+
+      <!-- Line Chart -->
+      <div class="chart-card-full">
+        <h3>Monthly Applications Trend</h3>
+        <canvas baseChart
+                [data]="lineChartData"
+                [options]="lineChartOptions"
+                type="line">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div *ngIf="activeTab === 'users'">
+      <div class="page-header">
+        <h1>Manage Users</h1>
+        <p>View and manage all registered users</p>
+      </div>
+
+      <div class="message-box" *ngIf="message"
+           [class.error]="isError" [class.success]="!isError">
+        {{ message }}
+      </div>
+
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Role</th>
+              <th>Verified</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.phone }}</td>
+              <td>
+                <span class="role-tag">
+                  {{ user.roles?.join(', ') || 'Citizen' }}
+                </span>
+              </td>
+              <td>
+                <span [class]="user.isEmailVerified
+                  ? 'verified' : 'unverified'">
+                  {{ user.isEmailVerified ? '✅' : '❌' }}
+                </span>
+              </td>
+              <td>
+                <button class="btn-delete"
+                        (click)="deleteUser(user.id)">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Applications Tab -->
+    <div *ngIf="activeTab === 'applications'">
+      <div class="page-header">
+        <h1>All Applications</h1>
+        <p>View all citizen applications</p>
+      </div>
+
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>App No</th>
+              <th>Citizen</th>
+              <th>Service</th>
+              <th>Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let app of applications">
+              <td><strong>{{ app.appNo }}</strong></td>
+              <td>{{ app.citizen?.name }}</td>
+              <td>{{ app.service?.serviceName }}</td>
+              <td>{{ app.submittedOn | date:'dd MMM yyyy' }}</td>
+              <td>
+                <span [class]="getStatusClass(app.status)">
+                  {{ app.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty" *ngIf="applications.length === 0">
+          No applications found.
+        </div>
+      </div>
+    </div>
+
+    <!-- Announcements Tab -->
+    <div *ngIf="activeTab === 'announce'">
+      <div class="page-header">
+        <h1>Create Announcement</h1>
+        <p>Post announcements visible to all citizens</p>
+      </div>
+
+      <div class="form-card">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text"
+                 placeholder="Announcement title"
+                 [(ngModel)]="announcementTitle" />
+        </div>
+        <div class="form-group">
+          <label>Content</label>
+          <textarea [(ngModel)]="announcementContent"
+                    placeholder="Announcement content..."
+                    rows="5"></textarea>
+        </div>
+
+        <div class="message-box" *ngIf="message"
+             [class.error]="isError" [class.success]="!isError">
+          {{ message }}
+        </div>
+
+        <button class="btn-submit" (click)="createAnnouncement()">
+          Post Announcement
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>

@@ -1,0 +1,461 @@
+<!-- NO navbar — independent -->
+
+<div class="mobile-overlay"
+     *ngIf="sidebarOpen"
+     (click)="toggleMobileSidebar()">
+</div>
+
+<div class="dash-root">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar"
+         [class.collapsed]="sidebarCollapsed"
+         [class.mobile-open]="sidebarOpen">
+
+    <div class="sb-top">
+      <div class="sb-brand"
+           (click)="goHome()"
+           style="cursor:pointer">
+        <div class="sb-brand-icon">
+          <img src="assets/images/nagrik-logo.png"
+               onerror="this.style.display='none'"
+               alt="Logo" width="26" height="26"/>
+        </div>
+        <div class="sb-brand-text">
+          <h2>Nagrik Seva</h2>
+          <p>Officer Portal</p>
+        </div>
+      </div>
+      <button class="sb-toggle d-none d-lg-flex"
+              (click)="toggleSidebar()">
+        <lucide-icon
+          [img]="sidebarCollapsed
+            ? icons.PanelLeftOpen
+            : icons.PanelLeftClose"
+          [size]="15">
+        </lucide-icon>
+      </button>
+    </div>
+
+    <div class="sb-user">
+      <div class="sb-user-inner">
+        <div class="sb-avatar">{{ userInitial }}</div>
+        <div class="sb-user-info">
+          <h4>{{ userName }}</h4>
+          <span>
+            <lucide-icon [img]="icons.ShieldCheck"
+                         [size]="10">
+            </lucide-icon>
+            Field Officer
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <button class="sb-item"
+              [class.active]="activeTab==='dashboard'"
+              (click)="setTab('dashboard')">
+        <div class="sb-item-icon">
+          <lucide-icon [img]="icons.LayoutDashboard"
+                       [size]="18">
+          </lucide-icon>
+        </div>
+        <span class="sb-item-label">Dashboard</span>
+      </button>
+
+      <button class="sb-item"
+              [class.active]="activeTab==='applications'"
+              (click)="setTab('applications')">
+        <div class="sb-item-icon">
+          <lucide-icon [img]="icons.ClipboardList"
+                       [size]="18">
+          </lucide-icon>
+        </div>
+        <span class="sb-item-label">
+          All Applications
+        </span>
+      </button>
+    </nav>
+
+    <div class="sb-footer">
+      <button class="sb-logout" (click)="logout()">
+        <div class="sb-item-icon">
+          <lucide-icon [img]="icons.LogOut" [size]="18">
+          </lucide-icon>
+        </div>
+        <span class="sb-logout-label">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="main" [class.shift]="sidebarCollapsed">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="tb-left">
+        <button class="tb-menu-btn"
+                (click)="toggleMobileSidebar()">
+          <lucide-icon [img]="icons.Menu" [size]="18">
+          </lucide-icon>
+        </button>
+        <span class="tb-title">
+          <ng-container *ngIf="activeTab==='dashboard'">
+            Dashboard
+          </ng-container>
+          <ng-container *ngIf="activeTab==='applications'">
+            All Applications
+          </ng-container>
+        </span>
+      </div>
+
+      <div class="tb-right">
+        <div class="officer-badge">
+          <lucide-icon [img]="icons.Shield" [size]="14">
+          </lucide-icon>
+          <span>Officer</span>
+        </div>
+        <div class="topbar-user">
+          <div class="topbar-avatar">{{ userInitial }}</div>
+          <span class="topbar-name d-none d-md-inline">
+            {{ userName }}
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div *ngIf="activeTab==='dashboard'" class="fade-in">
+
+        <div class="welcome-card">
+          <div class="wc-text">
+            <h2>Welcome, {{ userName }}!</h2>
+            <p>
+              You have
+              <strong>{{ getCount('Pending') }}</strong>
+              pending applications to review
+            </p>
+          </div>
+          <button class="btn-new" (click)="setTab('applications')">
+            <lucide-icon [img]="icons.ClipboardList" [size]="16">
+            </lucide-icon>
+            View Applications
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="sc s-blue">
+            <div class="sc-icon i-blue">
+              <lucide-icon [img]="icons.FileText" [size]="20"></lucide-icon>
+            </div>
+            <div class="sc-info">
+              <div class="sc-val">{{ applications.length }}</div>
+              <div class="sc-lbl">Total</div>
+            </div>
+          </div>
+          <div class="sc s-orange">
+            <div class="sc-icon i-orange">
+              <lucide-icon [img]="icons.Clock" [size]="20"></lucide-icon>
+            </div>
+            <div class="sc-info">
+              <div class="sc-val">{{ getCount('Pending') }}</div>
+              <div class="sc-lbl">Pending</div>
+            </div>
+          </div>
+          <div class="sc s-purple">
+            <div class="sc-icon i-purple">
+              <lucide-icon [img]="icons.Search" [size]="20"></lucide-icon>
+            </div>
+            <div class="sc-info">
+              <div class="sc-val">{{ getCount('UnderReview') }}</div>
+              <div class="sc-lbl">Under Review</div>
+            </div>
+          </div>
+          <div class="sc s-green">
+            <div class="sc-icon i-green">
+              <lucide-icon [img]="icons.CheckCircle" [size]="20"></lucide-icon>
+            </div>
+            <div class="sc-info">
+              <div class="sc-val">{{ getCount('Approved') }}</div>
+              <div class="sc-lbl">Approved</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">Applications Overview</span>
+          </div>
+          <div class="panel-body">
+            <canvas baseChart
+                    [data]="barChartData"
+                    [options]="barChartOptions"
+                    type="bar">
+            </canvas>
+          </div>
+        </div>
+
+        <!-- Recent pending -->
+        <div class="panel" style="margin-top:16px">
+          <div class="panel-head">
+            <span class="panel-title">Pending Review</span>
+            <button class="panel-action" (click)="setTab('applications')">
+              View All
+              <lucide-icon [img]="icons.ArrowRight" [size]="12"></lucide-icon>
+            </button>
+          </div>
+          <div class="panel-body">
+            <div *ngFor="let app of
+                 applications.filter(a => a.status === 'Pending').slice(0, 4)"
+                 class="ri">
+              <div class="ri-icon">
+                <lucide-icon [img]="icons.FileText" [size]="15"></lucide-icon>
+              </div>
+              <div class="ri-info">
+                <div class="ri-name">
+                  {{ app.citizen?.name || 'Citizen' }}
+                </div>
+                <div class="ri-no">
+                  {{ app.appNo }} · {{ app.service?.serviceName }}
+                </div>
+              </div>
+              <button class="btn-update-sm" (click)="openReview(app)">
+                <lucide-icon [img]="icons.Eye" [size]="12"></lucide-icon>
+                Review
+              </button>
+            </div>
+            <div class="empty-box" *ngIf="getCount('Pending') === 0">
+              <div class="empty-ico">
+                <lucide-icon [img]="icons.CheckCircle" [size]="26"></lucide-icon>
+              </div>
+              <p>All applications are reviewed!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── APPLICATIONS ── -->
+      <div *ngIf="activeTab==='applications'" class="fade-in">
+
+        <div class="apps-panel">
+          <div class="apps-head">
+            <h3>All Applications</h3>
+            <div class="search-wrap">
+              <lucide-icon [img]="icons.Search" [size]="14" class="search-icon">
+              </lucide-icon>
+              <input type="text"
+                     class="search-inp"
+                     [(ngModel)]="searchQuery"
+                     placeholder="Search by App No, Citizen, Service..." />
+            </div>
+          </div>
+
+          <div class="tbl-wrap" *ngIf="filteredApplications.length > 0">
+            <table>
+              <thead>
+                <tr>
+                  <th>App No</th>
+                  <th>Citizen</th>
+                  <th>Service</th>
+                  <th class="hide-mob">Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let app of filteredApplications">
+                  <td>
+                    <span class="app-no-tag">{{ app.appNo }}</span>
+                  </td>
+                  <td>{{ app.citizen?.name }}</td>
+                  <td>{{ app.service?.serviceName }}</td>
+                  <td class="hide-mob">
+                    {{ app.submittedOn | date:'dd MMM yyyy' }}
+                  </td>
+                  <td>
+                    <span [class]="getStatusClass(app.status)">
+                      {{ app.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn-update-sm" (click)="openReview(app)">
+                      <lucide-icon [img]="icons.Eye" [size]="12"></lucide-icon>
+                      Review
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="empty-box"
+               *ngIf="filteredApplications.length === 0"
+               style="padding:48px">
+            <div class="empty-ico">
+              <lucide-icon [img]="icons.FileText" [size]="26"></lucide-icon>
+            </div>
+            <p>No applications found</p>
+          </div>
+        </div>
+
+        <!-- ── REVIEW PANEL ── -->
+        <div class="review-panel" *ngIf="reviewingApp">
+          <div class="review-header">
+            <h4>Reviewing: {{ reviewingApp.appNo }}</h4>
+            <button class="close-btn" (click)="closeReview()">
+              <lucide-icon [img]="icons.X" [size]="14"></lucide-icon>
+            </button>
+          </div>
+
+          <div class="review-grid">
+            <!-- Citizen details -->
+            <div>
+              <h5>Citizen Details</h5>
+              <div class="detail-row">
+                <span>Name</span>
+                <strong>{{ reviewingApp.details?.fullName || reviewingApp.citizen?.name }}</strong>
+              </div>
+              <div class="detail-row" *ngIf="reviewingApp.details">
+                <span>Date of Birth</span>
+                <strong>{{ reviewingApp.details.dateOfBirth }}</strong>
+              </div>
+              <div class="detail-row" *ngIf="reviewingApp.details">
+                <span>Aadhaar No</span>
+                <strong>{{ reviewingApp.details.aadhaarNumber }}</strong>
+              </div>
+              <div class="detail-row" *ngIf="reviewingApp.details">
+                <span>Father's Name</span>
+                <strong>{{ reviewingApp.details.fatherName }}</strong>
+              </div>
+              <div class="detail-row" *ngIf="reviewingApp.details">
+                <span>Mobile</span>
+                <strong>{{ reviewingApp.details.mobileNumber }}</strong>
+              </div>
+              <div class="detail-row" *ngIf="reviewingApp.details">
+                <span>Address</span>
+                <strong>{{ reviewingApp.details.address }}</strong>
+              </div>
+              <div class="detail-row">
+                <span>Service</span>
+                <strong>{{ reviewingApp.service?.serviceName }}</strong>
+              </div>
+              <div class="detail-row">
+                <span>Description</span>
+                <strong>{{ reviewingApp.description || '—' }}</strong>
+              </div>
+            </div>
+
+            <!-- Document viewer -->
+            <div>
+              <h5>Uploaded Documents</h5>
+
+              <div class="doc-view-row" *ngIf="reviewingApp.details?.aadhaarDocPath">
+                <span>Aadhaar Card</span>
+                <button class="btn-view-doc" (click)="viewDocument(reviewingApp.id, 'aadhaar')">
+                  <lucide-icon [img]="icons.Eye" [size]="13"></lucide-icon>
+                  View
+                </button>
+              </div>
+
+              <div class="doc-view-row" *ngIf="reviewingApp.details?.photoDocPath">
+                <span>Passport Photo</span>
+                <button class="btn-view-doc" (click)="viewDocument(reviewingApp.id, 'photo')">
+                  <lucide-icon [img]="icons.Eye" [size]="13"></lucide-icon>
+                  View
+                </button>
+              </div>
+
+              <div class="doc-view-row" *ngIf="reviewingApp.details?.addressDocPath">
+                <span>Address Proof</span>
+                <button class="btn-view-doc" (click)="viewDocument(reviewingApp.id, 'address')">
+                  <lucide-icon [img]="icons.Eye" [size]="13"></lucide-icon>
+                  View
+                </button>
+              </div>
+
+              <p *ngIf="!reviewingApp.details" style="color:#94a3b8;font-size:13px">
+                No documents uploaded
+              </p>
+            </div>
+          </div>
+
+          <!-- Decision section -->
+          <div class="review-actions">
+            <div class="fg">
+              <label>Decision</label>
+              <select [(ngModel)]="selectedStatus">
+                <option value="Pending">Pending</option>
+                <option value="UnderReview">Under Review</option>
+                <option value="Approved">Approve</option>
+                <option value="Rejected">Reject</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Remarks</label>
+              <textarea rows="3" [(ngModel)]="remarks"
+                        placeholder="Add remarks for the citizen...">
+              </textarea>
+            </div>
+
+            <div class="msg-ok" *ngIf="message && !isError">{{ message }}</div>
+            <div class="msg-err" *ngIf="message && isError">{{ message }}</div>
+
+            <div class="btn-row">
+              <button class="btn-cancel" (click)="closeReview()">Cancel</button>
+
+              <button *ngIf="selectedStatus !== 'Approved'"
+                      class="btn-submit" (click)="updateStatus()">
+                Update Status
+              </button>
+
+              <button *ngIf="selectedStatus === 'Approved'"
+                      class="btn-approve" (click)="approveWithCertificate()">
+                <lucide-icon [img]="icons.CheckCircle" [size]="16"></lucide-icon>
+                Approve & Generate Certificate
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- /.review-panel -->
+
+      </div>
+      <!-- /.applications ngIf -->
+
+    </div><!-- end content -->
+
+    <footer class="dash-footer">
+      <span>Privacy Policy</span>
+      <span>Terms of Service</span>
+      <span class="footer-copy">
+        © 2024 Nagrik Seva Portal. Government of India.
+      </span>
+    </footer>
+
+  </div>
+</div>
+
+<!-- Bottom nav mobile -->
+<nav class="bottom-nav">
+  <button class="bnav-btn"
+          [class.active]="activeTab==='dashboard'"
+          (click)="setTab('dashboard')">
+    <lucide-icon [img]="icons.LayoutDashboard" [size]="20"></lucide-icon>
+    <span>Home</span>
+  </button>
+  <button class="bnav-btn"
+          [class.active]="activeTab==='applications'"
+          (click)="setTab('applications')">
+    <lucide-icon [img]="icons.ClipboardList" [size]="20"></lucide-icon>
+    <span>Applications</span>
+  </button>
+  <button class="bnav-btn" (click)="logout()">
+    <lucide-icon [img]="icons.LogOut" [size]="20"></lucide-icon>
+    <span>Logout</span>
+  </button>
+</nav>

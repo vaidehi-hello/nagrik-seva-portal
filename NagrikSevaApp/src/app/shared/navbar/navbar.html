@@ -1,0 +1,153 @@
+<header>
+  <!-- Top Bar -->
+  <div class="top-bar py-1 px-4 d-flex
+              justify-content-between align-items-center">
+    <div class="d-none d-md-flex gap-4 text-white"
+         style="font-size:12px; opacity:0.85">
+      <span>📞 1800-XXX-XXXX</span>
+      <span>✉️ help&#64;nagrikseva.gov.in</span>
+    </div>
+    <div class="d-flex align-items-center gap-2 ms-auto">
+      <button class="font-btn" (click)="decreaseFontSize()">
+        A-
+      </button>
+      <button class="font-btn" (click)="resetFontSize()">
+        A
+      </button>
+      <button class="font-btn" (click)="increaseFontSize()">
+        A+
+      </button>
+      <button class="btn btn-sm fw-bold ms-2 px-3"
+              style="background:#FF6B00;color:white;
+                     font-size:12px"
+              (click)="toggleLanguage()">
+        {{ currentLang === 'EN' ? '🇮🇳 हिंदी' : '🇬🇧 English' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Navbar -->
+  <nav class="main-navbar navbar navbar-expand-lg bg-white px-4">
+    <div class="container-fluid">
+
+      <a class="navbar-brand d-flex align-items-center gap-2"
+         routerLink="/">
+        <div class="gov-logo">
+        <img src="assets/images/nagrik-logo.png"
+             onerror="this.style.display='none'"
+             alt="Logo" width="65" height="65"/> </div>
+        <div>
+          <div class="fw-bold"
+               style="color:#1a3a6b;font-size:16px">
+            {{ lang.portal }}
+          </div>
+          <div style="color:#888;font-size:11px">
+            Government of India
+          </div>
+        </div>
+      </a>
+
+      <!-- Search -->
+      <div class="d-none d-lg-flex mx-3"
+           style="width:280px">
+        <div class="input-group">
+          <input type="text"
+                 class="form-control form-control-sm"
+                 [placeholder]="lang.search"
+                 [(ngModel)]="searchQuery"
+                 (keyup.enter)="search()" />
+          <button class="btn btn-gov btn-sm"
+                  (click)="search()">
+                  <button type="submit"
+        style="background:#1a3a6b;
+               border:none;
+               padding:8px 14px;
+               border-radius:0 6px 6px 0;
+               cursor:pointer;
+               display:flex;
+               align-items:center">
+  <svg xmlns="http://www.w3.org/2000/svg"
+       width="16" height="16" viewBox="0 0 24 24"
+       fill="none" stroke="white"
+       stroke-width="2.5" stroke-linecap="round"
+       stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="m21 21-4.35-4.35"/>
+  </svg>
+</button>
+                </button>
+        </div>
+      </div>
+
+      <button class="navbar-toggler" type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMenu">
+        <ul class="navbar-nav ms-auto align-items-center gap-1">
+          <li class="nav-item">
+            <a class="nav-link fw-semibold"
+               style="color:#333"
+               routerLink="/"
+               routerLinkActive="active"
+               [routerLinkActiveOptions]="{exact:true}">
+              {{ lang.home }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold"
+               style="color:#333"
+               routerLink="/services"
+               routerLinkActive="active">
+              {{ lang.services }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold"
+               style="color:#333"
+               routerLink="/about"
+               routerLinkActive="active">
+              {{ lang.about }}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold"
+               style="color:#333"
+               routerLink="/contact"
+               routerLinkActive="active">
+              {{ lang.contact }}
+            </a>
+          </li>
+
+          <ng-container *ngIf="!isLoggedIn">
+            <li class="nav-item ms-2">
+              <a routerLink="/login"
+                 class="btn btn-gov btn-sm px-4 fw-bold">
+                {{ lang.login }}
+              </a>
+            </li>
+          </ng-container>
+
+          <ng-container *ngIf="isLoggedIn">
+            <li class="nav-item ms-1">
+              <button class="btn btn-orange btn-sm
+                             px-3 fw-bold"
+                      (click)="goToDashboard()">
+                {{ lang.dashboard }}
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-outline-danger
+                             btn-sm px-3 fw-bold"
+                      (click)="logout()">
+                {{ lang.logout }}
+              </button>
+            </li>
+          </ng-container>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>

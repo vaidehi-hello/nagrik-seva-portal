@@ -1,0 +1,803 @@
+<!-- NO app-navbar here — completely independent -->
+
+<!-- Mobile overlay -->
+<div class="mobile-overlay"
+     *ngIf="sidebarOpen"
+     (click)="toggleMobileSidebar()">
+</div>
+
+<div class="dash-root">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar"
+         [class.collapsed]="sidebarCollapsed"
+         [class.mobile-open]="sidebarOpen">
+
+    <!-- Top brand -->
+    <div class="sb-top">
+      <div class="sb-brand" (click)="goHome()" style="cursor:pointer">
+        <div class="sb-brand-icon">
+          <div class="gov-logo">
+            <img src="assets/images/nagrik-logo.png"
+                 onerror="this.style.display='none'"
+                 alt="Logo" width="30" height="30"/>
+          </div>
+        </div>
+        <div class="sb-brand-text">
+          <h2>Nagrik Seva</h2>
+          <p>Citizen Portal</p>
+        </div>
+      </div>
+      <button class="sb-toggle d-none d-lg-flex" (click)="toggleSidebar()">
+        <lucide-icon [img]="sidebarCollapsed ? icons.PanelLeftOpen : icons.PanelLeftClose" [size]="15">
+        </lucide-icon>
+      </button>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sb-nav">
+      <button class="sb-item"
+              [class.active]="activeTab==='dashboard'"
+              (click)="setTab('dashboard')">
+        <div class="sb-item-icon">
+          <lucide-icon [img]="icons.LayoutDashboard" [size]="18"></lucide-icon>
+        </div>
+        <span class="sb-item-label">Dashboard</span>
+      </button>
+
+      <button class="sb-item"
+              [class.active]="activeTab==='apply'"
+              (click)="setTab('apply')">
+        <div class="sb-item-icon">
+          <lucide-icon [img]="icons.FilePlus" [size]="18"></lucide-icon>
+        </div>
+        <span class="sb-item-label">Apply for Service</span>
+      </button>
+
+      <button class="sb-item"
+              [class.active]="activeTab==='applications'"
+              (click)="setTab('applications')">
+        <div class="sb-item-icon">
+          <lucide-icon [img]="icons.FileText" [size]="18"></lucide-icon>
+        </div>
+        <span class="sb-item-label">My Applications</span>
+      </button>
+
+      <button class="sb-item"
+              [class.active]="activeTab==='track'"
+              (click)="setTab('track')">
+        <div class="sb-item-icon">
+          <lucide-icon [img]="icons.Search" [size]="18"></lucide-icon>
+        </div>
+        <span class="sb-item-label">Track Application</span>
+      </button>
+
+      <button class="sb-item"
+              [class.active]="activeTab==='profile'"
+              (click)="setTab('profile')">
+        <div class="sb-item-icon">
+          <lucide-icon [img]="icons.User" [size]="18"></lucide-icon>
+        </div>
+        <span class="sb-item-label">My Profile</span>
+      </button>
+    </nav>
+
+    <!-- Logout -->
+    <div class="sb-footer">
+      <button class="sb-logout" (click)="logout()">
+        <div class="sb-item-icon">
+          <lucide-icon [img]="icons.LogOut" [size]="18"></lucide-icon>
+        </div>
+        <span class="sb-logout-label">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="main" [class.shift]="sidebarCollapsed">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="tb-left">
+        <button class="tb-menu-btn" (click)="toggleMobileSidebar()">
+          <lucide-icon [img]="sidebarOpen ? icons.X : icons.Menu" [size]="18">
+          </lucide-icon>
+        </button>
+        <span class="tb-title">
+          <ng-container *ngIf="activeTab==='dashboard'">Dashboard</ng-container>
+          <ng-container *ngIf="activeTab==='apply'">Apply for Service</ng-container>
+          <ng-container *ngIf="activeTab==='applications'">My Applications</ng-container>
+          <ng-container *ngIf="activeTab==='track'">Track Application</ng-container>
+          <ng-container *ngIf="activeTab==='profile'">My Profile</ng-container>
+        </span>
+      </div>
+
+      <div class="tb-right">
+
+        <!-- Profile button -->
+        <button class="profile-btn" (click)="toggleProfileMenu()">
+          <div class="profile-avatar" style="overflow:hidden;position:relative;">
+            <img *ngIf="profilePhoto"
+                 [src]="profilePhoto"
+                 style="width:100%;height:100%;object-fit:cover;
+                        border-radius:50%;position:absolute;top:0;left:0;" />
+            <span *ngIf="!profilePhoto">{{ userInitial }}</span>
+          </div>
+          <span class="profile-name">{{ userName }}</span>
+          <lucide-icon [img]="icons.ChevronDown" [size]="14"
+                       class="profile-chevron"
+                       [class.open]="showProfileMenu">
+          </lucide-icon>
+        </button>
+
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" *ngIf="showProfileMenu">
+          <div class="pd-header">
+            <div class="pd-avatar-lg" style="overflow:hidden;position:relative;">
+              <img *ngIf="profilePhoto"
+                   [src]="profilePhoto"
+                   style="width:100%;height:100%;object-fit:cover;
+                          border-radius:50%;position:absolute;top:0;left:0;" />
+              <span *ngIf="!profilePhoto">{{ userInitial }}</span>
+            </div>
+            <div class="pd-info">
+              <h4>{{ userName }}</h4>
+              <span>Citizen Account</span>
+            </div>
+            <span class="pd-badge">
+              <lucide-icon [img]="icons.ShieldCheck" [size]="10"></lucide-icon>
+              Verified
+            </span>
+          </div>
+
+          <div class="pd-body">
+            <button class="pd-item" (click)="openProfileEdit()">
+              <div class="pd-item-icon blue">
+                <lucide-icon [img]="icons.Edit3" [size]="14"></lucide-icon>
+              </div>
+              <div>
+                <div class="pd-item-text">Edit Profile</div>
+                <div class="pd-item-sub">Update name, phone, avatar</div>
+              </div>
+            </button>
+
+            <div class="pd-divider"></div>
+
+            <button class="pd-item" (click)="logout()">
+              <div class="pd-item-icon red">
+                <lucide-icon [img]="icons.LogOut" [size]="14"></lucide-icon>
+              </div>
+              <div>
+                <div class="pd-item-text" style="color:#ef4444">Sign Out</div>
+                <div class="pd-item-sub">Logout from your account</div>
+              </div>
+            </button>
+          </div>
+        </div>
+        <!-- ADD THIS -->
+  <div class="profile-backdrop" 
+       *ngIf="showProfileMenu"
+       (click)="showProfileMenu = false">
+  </div>
+
+      </div>
+    </header>
+
+    <!-- ── CONTENT ── -->
+    <div class="content">
+      
+
+      <!-- ── DASHBOARD ── -->
+      <div *ngIf="activeTab==='dashboard'" class="fade-in">
+
+        <div class="welcome-card">
+          <div class="wc-text">
+            <h2>Welcome back, {{ userName }}!</h2>
+            <p>Here is your application overview</p>
+          </div>
+          <button class="btn-new" (click)="setTab('apply')">
+            <lucide-icon [img]="icons.Plus" [size]="16"></lucide-icon>
+            New Application
+          </button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="sc s-blue">
+            <div class="sc-icon i-blue">
+              <lucide-icon [img]="icons.FileText" [size]="20"></lucide-icon>
+            </div>
+            <div class="sc-info">
+              <div class="sc-val">{{ applications.length }}</div>
+              <div class="sc-lbl">Total Applications</div>
+            </div>
+          </div>
+          <div class="sc s-orange">
+            <div class="sc-icon i-orange">
+              <lucide-icon [img]="icons.Clock" [size]="20"></lucide-icon>
+            </div>
+            <div class="sc-info">
+              <div class="sc-val">{{ getCount('Pending') }}</div>
+              <div class="sc-lbl">Pending</div>
+            </div>
+          </div>
+          <div class="sc s-green">
+            <div class="sc-icon i-green">
+              <lucide-icon [img]="icons.CheckCircle" [size]="20"></lucide-icon>
+            </div>
+            <div class="sc-info">
+              <div class="sc-val">{{ getCount('Approved') }}</div>
+              <div class="sc-lbl">Approved</div>
+            </div>
+          </div>
+          <div class="sc s-red">
+            <div class="sc-icon i-red">
+              <lucide-icon [img]="icons.XCircle" [size]="20"></lucide-icon>
+            </div>
+            <div class="sc-info">
+              <div class="sc-val">{{ getCount('Rejected') }}</div>
+              <div class="sc-lbl">Rejected</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">Application Status</span>
+            </div>
+            <div class="panel-body">
+              <div *ngIf="applications.length > 0" class="chart-wrap">
+                <canvas baseChart
+                        [data]="pieChartData"
+                        [options]="pieChartOptions"
+                        type="pie">
+                </canvas>
+              </div>
+              <div class="empty-box" *ngIf="applications.length === 0">
+                <div class="empty-ico">
+                  <lucide-icon [img]="icons.PieChart" [size]="26"></lucide-icon>
+                </div>
+                <p>No applications yet</p>
+                <button class="btn-new" style="margin:0 auto" (click)="setTab('apply')">
+                  <lucide-icon [img]="icons.Plus" [size]="14"></lucide-icon>
+                  Apply Now
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">Recent Applications</span>
+              <button class="panel-action" (click)="setTab('applications')">
+                View All
+                <lucide-icon [img]="icons.ArrowRight" [size]="12"></lucide-icon>
+              </button>
+            </div>
+            <div class="panel-body">
+              <div *ngIf="applications.length > 0">
+                <div *ngFor="let app of applications.slice(0, showAllRecent ? applications.length : 4)"
+                     class="ri">
+                  <div class="ri-icon">
+                    <lucide-icon [img]="icons.FileCheck" [size]="15"></lucide-icon>
+                  </div>
+                  <div class="ri-info">
+                    <div class="ri-name">{{ app.service?.serviceName || 'Service' }}</div>
+                    <div class="ri-no">{{ app.appNo }}</div>
+                  </div>
+                  <span [class]="getStatusClass(app.status)">{{ app.status }}</span>
+                </div>
+
+                <button class="vm-btn"
+                        *ngIf="applications.length > 4"
+                        (click)="showAllRecent = !showAllRecent">
+                  <lucide-icon [img]="showAllRecent ? icons.ChevronUp : icons.ChevronDown" [size]="13">
+                  </lucide-icon>
+                  {{ showAllRecent ? 'Show Less' : 'View More (' + (applications.length - 4) + ' more)' }}
+                </button>
+              </div>
+
+              <div class="empty-box" *ngIf="applications.length === 0">
+                <div class="empty-ico">
+                  <lucide-icon [img]="icons.Inbox" [size]="26"></lucide-icon>
+                </div>
+                <p>No recent applications</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── APPLY TAB ── -->
+<div *ngIf="activeTab==='apply'" class="fade-in">
+  <div class="apply-grid">
+
+    <div class="form-panel">
+
+      <!-- Step indicator -->
+      <div class="steps-bar">
+        <div class="step-item"
+             [class.active]="applyStep >= 1"
+             [class.done]="applyStep > 1">
+          <div class="step-circle">1</div>
+          <span>Service</span>
+        </div>
+        <div class="step-line" [class.done]="applyStep > 1"></div>
+        <div class="step-item"
+             [class.active]="applyStep >= 2"
+             [class.done]="applyStep > 2">
+          <div class="step-circle">2</div>
+          <span>Details</span>
+        </div>
+        <div class="step-line" [class.done]="applyStep > 2"></div>
+        <div class="step-item" [class.active]="applyStep >= 3">
+          <div class="step-circle">3</div>
+          <span>Document</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Select Service -->
+      <div *ngIf="applyStep === 1">
+        <h3 class="form-title">Select Service</h3>
+
+        <div class="fg">
+          <label>Service Type</label>
+          <select [(ngModel)]="selectedServiceId">
+            <option [value]="0">-- Choose a service --</option>
+            <option *ngFor="let s of services" [value]="s.id">
+              {{ s.serviceName }} ({{ s.department?.name }})
+            </option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label>Purpose / Description</label>
+          <textarea rows="4"
+                    [(ngModel)]="description"
+                    placeholder="Briefly describe why you need this service...">
+          </textarea>
+        </div>
+
+        <div class="msg-err" *ngIf="message && isError">{{ message }}</div>
+
+        <button type="button" class="btn-next" (click)="nextStep()">
+          Next →
+        </button>
+      </div>
+
+      <!-- Step 2: Personal Details -->
+<div *ngIf="applyStep === 2">
+  <h3 class="form-title">Personal Details</h3>
+  <p class="form-subtitle">
+    Please ensure details match your Aadhaar Card exactly
+  </p>
+
+  <div class="elegant-row">
+    <div class="elegant-field">
+      <label>Full Name</label>
+      <input type="text"
+             [(ngModel)]="applyDetails.fullName"
+             placeholder="As per Aadhaar Card" />
+    </div>
+    <div class="elegant-field">
+      <label>Date of Birth</label>
+      <input type="date"
+             [(ngModel)]="applyDetails.dateOfBirth" />
+    </div>
+  </div>
+
+  <div class="elegant-row">
+    <div class="elegant-field">
+      <label>Aadhaar Number</label>
+      <input type="text"
+             [(ngModel)]="applyDetails.aadhaarNumber"
+             placeholder="XXXX XXXX XXXX"
+             maxlength="12" />
+    </div>
+    <div class="elegant-field">
+      <label>Mobile Number</label>
+      <input type="tel"
+             [(ngModel)]="applyDetails.mobileNumber"
+             placeholder="10-digit mobile number"
+             maxlength="10" />
+    </div>
+  </div>
+
+  <div class="elegant-field full">
+    <label>Father's Name</label>
+    <input type="text"
+           [(ngModel)]="applyDetails.fatherName"
+           placeholder="As per Aadhaar Card" />
+  </div>
+
+  <div class="elegant-field full">
+    <label>Full Address</label>
+    <textarea rows="3"
+              [(ngModel)]="applyDetails.address"
+              placeholder="House No, Street, City, State, PIN code">
+    </textarea>
+  </div>
+
+  <div class="msg-err" *ngIf="message && isError">{{ message }}</div>
+
+  <div class="btn-row">
+    <button type="button" class="btn-back" (click)="applyStep = 1">
+      ← Back
+    </button>
+    <button type="button" class="btn-next" (click)="nextStep()">
+      Next →
+    </button>
+  </div>
+</div>
+
+      <!-- Step 3: Upload Documents -->
+<div *ngIf="applyStep === 3">
+  <h3 class="form-title">Upload Supporting Documents</h3>
+  <p class="form-subtitle">
+    Upload clear scanned copies or photos (PDF, JPG, PNG — max 5MB each)
+  </p>
+
+  <!-- Aadhaar -->
+  <div class="doc-row">
+    <div class="doc-label">
+      <lucide-icon [img]="icons.FileText" [size]="16"></lucide-icon>
+      <div>
+        <strong>Aadhaar Card</strong>
+        <span>Valid government ID proof</span>
+      </div>
+    </div>
+    <div class="doc-upload" [class.has-file]="documents.aadhaar">
+      <div *ngIf="!documents.aadhaar" class="doc-empty">
+        <label class="doc-browse-btn">
+          Choose File
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png"
+                 (change)="onFileSelected($event, 'aadhaar')" />
+        </label>
+        <span>No file chosen</span>
+      </div>
+      <div *ngIf="documents.aadhaar" class="doc-filled">
+        <lucide-icon [img]="icons.FileCheck" [size]="14"></lucide-icon>
+        <span class="doc-name">{{ documents.aadhaar.name }}</span>
+        <button type="button" class="doc-remove" (click)="removeDocument('aadhaar')">
+          <lucide-icon [img]="icons.X" [size]="13"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Passport Photo -->
+  <div class="doc-row">
+    <div class="doc-label">
+      <lucide-icon [img]="icons.User" [size]="16"></lucide-icon>
+      <div>
+        <strong>Passport Size Photo</strong>
+        <span>Recent photograph, white background</span>
+      </div>
+    </div>
+    <div class="doc-upload" [class.has-file]="documents.photo">
+      <div *ngIf="!documents.photo" class="doc-empty">
+        <label class="doc-browse-btn">
+          Choose File
+          <input type="file" accept=".jpg,.jpeg,.png"
+                 (change)="onFileSelected($event, 'photo')" />
+        </label>
+        <span>No file chosen</span>
+      </div>
+      <div *ngIf="documents.photo" class="doc-filled">
+        <lucide-icon [img]="icons.FileCheck" [size]="14"></lucide-icon>
+        <span class="doc-name">{{ documents.photo.name }}</span>
+        <button type="button" class="doc-remove" (click)="removeDocument('photo')">
+          <lucide-icon [img]="icons.X" [size]="13"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Address Proof -->
+  <div class="doc-row">
+    <div class="doc-label">
+      <lucide-icon [img]="icons.FileText" [size]="16"></lucide-icon>
+      <div>
+        <strong>Address Proof</strong>
+        <span>Utility bill, rental agreement, etc.</span>
+      </div>
+    </div>
+    <div class="doc-upload" [class.has-file]="documents.address">
+      <div *ngIf="!documents.address" class="doc-empty">
+        <label class="doc-browse-btn">
+          Choose File
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png"
+                 (change)="onFileSelected($event, 'address')" />
+        </label>
+        <span>No file chosen</span>
+      </div>
+      <div *ngIf="documents.address" class="doc-filled">
+        <lucide-icon [img]="icons.FileCheck" [size]="14"></lucide-icon>
+        <span class="doc-name">{{ documents.address.name }}</span>
+        <button type="button" class="doc-remove" (click)="removeDocument('address')">
+          <lucide-icon [img]="icons.X" [size]="13"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="msg-ok" *ngIf="message && !isError">{{ message }}</div>
+  <div class="msg-err" *ngIf="message && isError">{{ message }}</div>
+
+  <div class="btn-row">
+    <button type="button" class="btn-back" (click)="applyStep = 2">
+      ← Back
+    </button>
+    <button type="button" class="btn-submit" (click)="applyForService()">
+      {{ isSubmitting ? 'Submitting...' : 'Submit Application' }}
+    </button>
+  </div>
+</div>
+
+    </div><!-- /.form-panel -->
+
+    <!-- Info panel (right side) -->
+    <div class="info-stack">
+      <div class="info-block"
+           style="background:#fffbeb;border-color:#fde68a">
+        <h6>Required Documents</h6>
+        <ul>
+          <li>Aadhaar Card copy</li>
+          <li>Recent passport photo</li>
+          <li>Address proof</li>
+          <li>Any supporting document</li>
+        </ul>
+      </div>
+      <div class="info-block"
+           style="background:#eff6ff;border-color:#bfdbfe">
+        <h6>Processing Time</h6>
+        <p>5-7 working days after submission</p>
+        <p class="helpline-no">1800-XXX-XXXX</p>
+      </div>
+    </div><!-- /.info-stack -->
+
+  </div><!-- /.apply-grid -->
+</div><!-- /.apply ngIf -->
+
+
+<!-- ── APPLICATIONS ── -->
+<div *ngIf="activeTab==='applications'" class="fade-in">
+  <div class="apps-panel">
+    <div class="apps-head">
+      <h3>All My Applications</h3>
+      <button class="btn-add" (click)="setTab('apply')">
+        <lucide-icon [img]="icons.Plus" [size]="14"></lucide-icon>
+        New Application
+      </button>
+    </div>
+
+    <div class="tbl-wrap" *ngIf="applications.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>App No</th>
+            <th>Service</th>
+            <th class="hide-mob">Department</th>
+            <th class="hide-mob">Date</th>
+            <th>Status</th>
+            <th>Certificate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let app of applications">
+            <td>
+              <span class="app-no-tag">{{ app.appNo }}</span>
+            </td>
+            <td>{{ app.service?.serviceName }}</td>
+            <td class="hide-mob">
+              {{ app.service?.department?.name }}
+            </td>
+            <td class="hide-mob">
+              {{ app.submittedOn | date:'dd MMM yyyy' }}
+            </td>
+            <td>
+              <span [class]="getStatusClass(app.status)">
+                {{ app.status }}
+              </span>
+            </td>
+            <td>
+              <button *ngIf="app.status === 'Approved' && app.certificatePath"
+                      class="btn-download"
+                      (click)="downloadCertificate(app.id)">
+                <lucide-icon [img]="icons.Download" [size]="12"></lucide-icon>
+                Certificate
+              </button>
+              <span *ngIf="!(app.status === 'Approved' && app.certificatePath)"
+                    style="color:#94a3b8;font-size:12px">
+                —
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty-box" *ngIf="applications.length === 0" style="padding:48px">
+      <div class="empty-ico">
+        <lucide-icon [img]="icons.Inbox" [size]="26"></lucide-icon>
+      </div>
+      <p>No applications found</p>
+      <button class="btn-new" style="margin:0 auto" (click)="setTab('apply')">
+        <lucide-icon [img]="icons.Plus" [size]="14"></lucide-icon>
+        Apply Now
+      </button>
+    </div>
+  </div>
+</div>
+<!-- /.applications ngIf -->
+
+
+
+<!-- ── TRACK ── -->
+<div *ngIf="activeTab==='track'" class="fade-in">
+  <div class="track-panel">
+    <h3>Track Your Application</h3>
+    <p class="track-sub">
+      Enter your application number to check status
+    </p>
+
+    <div class="track-row">
+      <input type="text"
+             class="track-inp"
+             [(ngModel)]="trackingNo"
+             placeholder="e.g. NS20241201123456" />
+      <button type="button"
+              class="btn-track"
+              (click)="trackApp()">
+        <lucide-icon [img]="icons.Search" [size]="16"></lucide-icon>
+        Track
+      </button>
+    </div>
+
+    <div class="track-result" *ngIf="trackedApp">
+      <h6>Application Details</h6>
+      <div class="tr-grid">
+        <div class="tr-item">
+          <label>App No</label>
+          <p>{{ trackedApp.appNo }}</p>
+        </div>
+        <div class="tr-item">
+          <label>Service</label>
+          <p>{{ trackedApp.service?.serviceName }}</p>
+        </div>
+        <div class="tr-item">
+          <label>Status</label>
+          <p>
+            <span [class]="getStatusClass(trackedApp.status)">
+              {{ trackedApp.status }}
+            </span>
+          </p>
+        </div>
+        <div class="tr-item">
+          <label>Submitted</label>
+          <p>{{ trackedApp.submittedOn | date:'dd MMM yyyy' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="msg-err" *ngIf="isError && message" style="margin-top:12px">
+      {{ message }}
+    </div>
+  </div>
+</div>
+<!-- /.track ngIf -->
+
+
+      <!-- ── PROFILE ── -->
+      <div *ngIf="activeTab==='profile'" class="fade-in">
+        <div class="profile-panel">
+
+          <div class="profile-header-bg">
+
+            <div class="profile-avatar-lg"
+     style="position:relative;cursor:pointer;"
+     (click)="triggerPhotoUpload()">
+  <img *ngIf="profilePhoto"
+       [src]="profilePhoto"
+       style="width:100%;height:100%;border-radius:50%;
+              object-fit:cover;position:absolute;top:0;left:0;" />
+  <span *ngIf="!profilePhoto">{{ userInitial }}</span>
+  <div class="avatar-edit-btn">
+    <lucide-icon [img]="icons.Camera" [size]="10"></lucide-icon>
+  </div>
+</div>
+<input id="photoFileInput" type="file" accept="image/*"
+       style="display:none" (change)="onPhotoSelected($event)" />
+            <div class="profile-header-info">
+              <h3>{{ userName }}</h3>
+              <p>Citizen Account</p>
+            </div>
+            <span class="profile-verified">
+              <lucide-icon [img]="icons.ShieldCheck" [size]="11"></lucide-icon>
+              Verified
+            </span>
+          </div>
+
+          <div class="profile-body">
+            <h4>Edit Information</h4>
+
+            <div class="pf-group">
+              <label>Full Name</label>
+              <input type="text" class="pf-input"
+                     [(ngModel)]="editName"
+                     placeholder="Your full name" />
+            </div>
+
+            <div class="pf-group">
+              <label>Phone Number</label>
+              <input type="tel" class="pf-input"
+                     [(ngModel)]="editPhone"
+                     placeholder="10 digit mobile number" />
+            </div>
+
+            <div class="pf-group">
+              <label>Email Address</label>
+              <input type="email" class="pf-input"
+                     [value]="profileEmail"
+                     readonly
+                     style="background:#f8fafc;color:#94a3b8;cursor:not-allowed" />
+            </div>
+
+            <div class="save-success" *ngIf="profileSaved">
+              ✅ Profile updated successfully!
+            </div>
+
+            <button type="button" class="btn-save" (click)="saveProfile()">
+              <lucide-icon [img]="icons.Save" [size]="16"></lucide-icon>
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end content -->
+
+    <footer class="dash-footer">
+      <span>Privacy Policy</span>
+      <span>Terms of Service</span>
+      <span>Accessibility</span>
+      <span>Help Desk</span>
+      <span class="footer-copy">© 2024 Nagrik Seva Portal. Government of India.</span>
+    </footer>
+
+  </div><!-- end main -->
+</div>
+
+<!-- Bottom nav mobile -->
+<nav class="bottom-nav">
+  <button class="bnav-btn"
+          [class.active]="activeTab==='dashboard'"
+          (click)="setTab('dashboard')">
+    <lucide-icon [img]="icons.LayoutDashboard" [size]="20"></lucide-icon>
+    <span>Home</span>
+  </button>
+  <button class="bnav-btn"
+          [class.active]="activeTab==='apply'"
+          (click)="setTab('apply')">
+    <lucide-icon [img]="icons.FilePlus" [size]="20"></lucide-icon>
+    <span>Apply</span>
+  </button>
+  <button class="bnav-btn"
+          [class.active]="activeTab==='applications'"
+          (click)="setTab('applications')">
+    <lucide-icon [img]="icons.FileText" [size]="20"></lucide-icon>
+    <span>My Apps</span>
+  </button>
+  <button class="bnav-btn"
+          [class.active]="activeTab==='track'"
+          (click)="setTab('track')">
+    <lucide-icon [img]="icons.Search" [size]="20"></lucide-icon>
+    <span>Track</span>
+  </button>
+  <button class="bnav-btn"
+          [class.active]="activeTab==='profile'"
+          (click)="setTab('profile')">
+    <lucide-icon [img]="icons.User" [size]="20"></lucide-icon>
+    <span>Profile</span>
+  </button>
+</nav>

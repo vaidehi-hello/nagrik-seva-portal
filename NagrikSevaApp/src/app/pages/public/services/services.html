@@ -1,0 +1,40 @@
+<app-navbar></app-navbar>
+
+<div class="services-page">
+  <div class="page-banner">
+    <h1>Government Services</h1>
+    <p>All services available online for citizens of India</p>
+  </div>
+
+  <div class="services-container">
+    <!-- Search Bar -->
+    <div class="search-filter">
+      <input type="text"
+             placeholder="Search services..."
+             [(ngModel)]="searchQuery"
+             (input)="filterServices()" />
+    </div>
+
+    <!-- Services Grid -->
+    <div class="services-grid">
+      <div class="service-card"
+           *ngFor="let service of filteredServices">
+        <div class="dept-tag">
+          {{ service.department?.name }}
+        </div>
+        <div class="service-icon">📄</div>
+        <h3>{{ service.serviceName }}</h3>
+        <p>{{ service.description }}</p>
+        <a routerLink="/login" class="apply-btn">
+          Apply Now →
+        </a>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="filteredServices.length === 0">
+      <p>No services found for "{{ searchQuery }}"</p>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

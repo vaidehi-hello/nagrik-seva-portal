@@ -1,0 +1,17 @@
+# ── Backend (.NET) ──
+NagrikSevaAPI/bin/
+NagrikSevaAPI/obj/
+NagrikSevaAPI/*.user
+NagrikSevaAPI/wwwroot/uploads/
+NagrikSevaAPI/appsettings.json
+NagrikSevaAPI/appsettings.Development.json
+
+# ── Frontend (Angular) ──
+NagrikSevaApp/node_modules/
+NagrikSevaApp/dist/
+NagrikSevaApp/.angular/
+NagrikSevaApp/.vscode/
+
+# ── General ──
+*.log
+.DS_Store
