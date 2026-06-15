@@ -1,122 +1,141 @@
-import { Component } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy,
+  ChangeDetectionStrategy, ChangeDetectorRef
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import {
+  LucideAngularModule,
+  CheckCircle, Home, Eye, EyeOff
+} from 'lucide-angular';
 import { AuthService } from '../../../services/auth';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [FormsModule, RouterLink, CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule],
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
-export class RegisterComponent {
-  name = '';
+export class RegisterComponent implements OnInit, OnDestroy {
+  readonly icons = { CheckCircle, Home, Eye, EyeOff };
+
+  // ── Form fields
+  fullName = '';
   email = '';
-  password = '';
-  confirmPassword = '';
   phone = '';
   role = 'Citizen';
+  password = '';
+  confirmPassword = '';
+
+  // ── UI state
+  showPassword = false;
+  showConfirmPassword = false;
   message = '';
   isError = false;
-  isLoading = false;
-  showPassword = false;
-  emailError = '';
-  passwordError = '';
+  isSubmitting = false;
+
+  // ── Carousel
+  slides = [
+    'assets/images/india.jpg',
+    'assets/images/india2.jpg',
+    'assets/images/india3.jpg'
+  ];
+  currentSlide = 0;
+  private slideInterval: any;
 
   constructor(
     private auth: AuthService,
-    private router: Router) {}
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  validateEmail() {
-    const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!this.email) { this.emailError = ''; return; }
-    this.emailError = pattern.test(this.email)
-      ? '' : 'Invalid email format!';
+  ngOnInit() {
+    this.slideInterval = setInterval(() => {
+      this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+      this.cdr.markForCheck();
+    }, 4000);
   }
 
-  validatePassword() {
-    if (!this.password) { this.passwordError = ''; return; }
-    if (this.password.length < 8)
-      this.passwordError = 'Minimum 8 characters';
-    else if (!/[A-Z]/.test(this.password))
-      this.passwordError = 'Add uppercase letter';
-    else if (!/[a-z]/.test(this.password))
-      this.passwordError = 'Add lowercase letter';
-    else if (!/[0-9]/.test(this.password))
-      this.passwordError = 'Add a number';
-    else if (!/[!@#$%^&*]/.test(this.password))
-      this.passwordError = 'Add special character (!@#$%)';
-    else
-      this.passwordError = '';
+  ngOnDestroy() {
+    if (this.slideInterval) clearInterval(this.slideInterval);
   }
 
-  getStrength(): number {
-    let s = 0;
-    if (this.password.length >= 8) s++;
-    if (/[A-Z]/.test(this.password)) s++;
-    if (/[a-z]/.test(this.password)) s++;
-    if (/[0-9]/.test(this.password)) s++;
-    if (/[!@#$%^&*]/.test(this.password)) s++;
-    return s;
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+    this.cdr.markForCheck();
   }
 
-  getStrengthLabel() {
-    const s = this.getStrength();
-    if (s <= 1) return 'Weak';
-    if (s <= 3) return 'Medium';
-    return 'Strong';
+  toggleConfirmPassword() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+    this.cdr.markForCheck();
   }
 
-  getStrengthColor() {
-    const s = this.getStrength();
-    if (s <= 1) return '#dc2626';
-    if (s <= 3) return '#FF6B00';
-    return '#16a34a';
+  goHome() {
+    this.router.navigate(['/']);
   }
 
-  register() {
-    if (!this.name || !this.email ||
-        !this.password || !this.phone) {
-      this.message = 'Please fill all fields!';
+  onSubmit() {
+    this.message = '';
+    this.isError = false;
+
+    if (!this.fullName.trim() || !this.email.trim() ||
+        !this.phone.trim() || !this.password || !this.confirmPassword) {
+      this.message = 'Please fill in all fields!';
       this.isError = true;
+      this.cdr.markForCheck();
+      return;
+    }
+
+    if (this.phone.length !== 10) {
+      this.message = 'Phone number must be 10 digits!';
+      this.isError = true;
+      this.cdr.markForCheck();
       return;
     }
 
     if (this.password !== this.confirmPassword) {
       this.message = 'Passwords do not match!';
       this.isError = true;
+      this.cdr.markForCheck();
       return;
     }
 
-    if (this.emailError || this.passwordError) {
-      this.message = 'Please fix the errors above!';
+    if (this.password.length < 6) {
+      this.message = 'Password must be at least 6 characters!';
       this.isError = true;
+      this.cdr.markForCheck();
       return;
     }
 
-    this.isLoading = true;
-    this.message = '';
+    this.isSubmitting = true;
+    this.cdr.markForCheck();
 
-    this.auth.register({
-      name: this.name,
-      email: this.email,
+    const payload = {
+      name: this.fullName.trim(),
+      email: this.email.trim(),
+      phone: this.phone.trim(),
       password: this.password,
-      phone: this.phone,
       role: this.role
-    }).subscribe({
+    };
+
+    this.auth.register(payload).subscribe({
       next: (res: any) => {
-        this.isLoading = false;
-        this.message = res.message ||
-          'Registered! Please verify your email.';
+        this.isSubmitting = false;
         this.isError = false;
-        setTimeout(() => this.router.navigate(['/login']), 2500);
+        this.message = 'Account created successfully! Redirecting to login...';
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 1800);
       },
       error: (err: any) => {
-        this.isLoading = false;
-        this.message = err.error?.message || 'Registration failed!';
+        this.isSubmitting = false;
         this.isError = true;
+        this.message = err.error?.message || 'Registration failed. Please try again.';
+        this.cdr.markForCheck();
       }
     });
   }

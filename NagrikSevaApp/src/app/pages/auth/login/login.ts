@@ -1,57 +1,113 @@
-import { Component } from '@angular/core';
+import {
+  Component, OnInit, OnDestroy,
+  ChangeDetectionStrategy, ChangeDetectorRef
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import {
+  LucideAngularModule,
+  ShieldCheck, Home, Eye, EyeOff
+} from 'lucide-angular';
 import { AuthService } from '../../../services/auth';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, RouterLink, CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
+  readonly icons = { ShieldCheck, Home, Eye, EyeOff };
+
   email = '';
   password = '';
+
+  showPassword = false;
   message = '';
   isError = false;
-  isLoading = false;
-  showPassword = false;
+  isSubmitting = false;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  // ── Carousel
+  slides = [
+    'assets/images/Taj-Mahal.jpg',
+    'assets/images/India-Gate.jpg',
+    'assets/images/Hawa-Mahal.jpg'
+  ];
+  currentSlide = 0;
+  private slideInterval: any;
 
-  login() {
-    if (!this.email || !this.password) {
-      this.message = 'Please fill all fields!';
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit() {
+    this.slideInterval = setInterval(() => {
+      this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+      this.cdr.markForCheck();
+    }, 4000);
+  }
+
+  ngOnDestroy() {
+    if (this.slideInterval) clearInterval(this.slideInterval);
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+    this.cdr.markForCheck();
+  }
+
+  goHome() {
+    this.router.navigate(['/']);
+  }
+
+  onSubmit() {
+    this.message = '';
+    this.isError = false;
+
+    if (!this.email.trim() || !this.password) {
+      this.message = 'Please enter both email and password!';
       this.isError = true;
+      this.cdr.markForCheck();
       return;
     }
 
-    this.isLoading = true;
-    this.message = '';
+    this.isSubmitting = true;
+    this.cdr.markForCheck();
 
-    this.auth.login({ email: this.email, password: this.password })
+    this.auth.login({ email: this.email.trim(), password: this.password })
       .subscribe({
         next: (res: any) => {
-          this.isLoading = false;
-          this.message = 'Login successful! Redirecting...';
+          this.isSubmitting = false;
           this.isError = false;
 
-          // Redirect based on role
-          setTimeout(() => {
-            if (res.role === 'Admin')
-              this.router.navigate(['/admin-dashboard']);
-            else if (res.role === 'Officer')
-              this.router.navigate(['/officer-dashboard']);
-            else
-              this.router.navigate(['/citizen-dashboard']);
-          }, 1000);
+          localStorage.setItem('token', res.token);
+          localStorage.setItem('id', res.id?.toString() || '0');
+          localStorage.setItem('name', res.name || '');
+          localStorage.setItem('email', res.email || '');
+          localStorage.setItem('phone', res.phone || '');
+
+          const role = (res.role || res.roles?.[0] || '').toLowerCase();
+
+          this.cdr.markForCheck();
+
+          if (role === 'officer') {
+            this.router.navigate(['/officer-dashboard']);
+          } else if (role === 'admin') {
+            this.router.navigate(['/admin-dashboard']);
+          } else {
+            this.router.navigate(['/citizen-dashboard']);
+          }
         },
         error: (err: any) => {
-          this.isLoading = false;
-          this.message = err.error?.message || 'Login failed!';
+          this.isSubmitting = false;
           this.isError = true;
+          this.message = err.error?.message || 'Invalid email or password!';
+          this.cdr.markForCheck();
         }
       });
   }

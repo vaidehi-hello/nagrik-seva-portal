@@ -698,9 +698,9 @@ body {
 
 /* ── APPLY TAB ── */
 .apply-grid {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .form-panel {
@@ -785,7 +785,16 @@ body {
 
 .btn-submit:hover { background: #f97316; }
 
-.info-stack { display: flex; flex-direction: column; gap: 12px; }
+.info-stack { 
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .info-stack { grid-template-columns: 1fr; }
+}
+ 
 
 .info-block {
   background: white;
@@ -1220,14 +1229,26 @@ tr:hover td { background: #fafbfc; }
 }
 
 .step-circle {
-  width: 32px; height: 32px;
+  width: 44px; height: 44px;
   border-radius: 50%;
   background: #e2e8f0;
   color: #94a3b8;
   display: flex; align-items: center;
   justify-content: center;
-  font-size: 13px; font-weight: 700;
+  font-size: 17px; font-weight: 700;
   transition: all 0.2s;
+}
+
+.step-item span {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.steps-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 36px;
 }
 
 .step-item.active .step-circle {
@@ -1348,20 +1369,57 @@ tr:hover td { background: #fafbfc; }
 .btn-next:hover { background: #f97316; }
 
 .btn-back {
-  background: #f8fafc;
-  color: #374151;
+  padding: 10px 20px;
+  background: white;
+  color: #64748b;
   border: 1.5px solid #e2e8f0;
-  padding: 11px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .btn-row {
   display: flex;
   gap: 10px;
-  margin-top: 16px;
+  margin-top: 24px;
+}
+.btn-back:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #374151;
+}
+
+
+.btn-next,
+.btn-submit {
+
+  padding: 10px 20px;
+  background: #1e3a5f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  letter-spacing: 0.1px;}
+
+
+  .btn-next:hover,
+.btn-submit:hover {
+  background: #15294a;
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Download button */
